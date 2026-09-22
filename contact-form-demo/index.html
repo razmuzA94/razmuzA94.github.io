@@ -3,18 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Contact form demo</title>
+<title>Contact us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin: 0; padding: 32px 16px; font: 16px/1.5 system-ui, sans-serif; color: #222; background: #f6f6f4; }
-  main { max-width: 520px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; }
-  h1 { font-size: 1.4em; margin: 0 0 4px; }
-  .note { color: #666; margin: 0 0 24px; font-size: .9em; }
+  body {
+    margin: 0; min-height: 100vh; padding: 56px 16px;
+    font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #1c2230;
+    background: radial-gradient(1200px 500px at 50% -10%, #e4ebff 0%, rgba(228,235,255,0) 70%), #f5f7fb;
+    box-sizing: border-box;
+  }
+  main {
+    max-width: 640px; margin: 0 auto; padding: 40px 40px 36px;
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(20,30,60,.06), 0 12px 32px rgba(20,30,60,.08);
+  }
+  h1 { margin: 0 0 6px; font-size: 1.75rem; line-height: 1.2; letter-spacing: -.01em; }
+  .lead { margin: 0 0 28px; color: #6b7385; }
+  @media (max-width: 520px) { body { padding: 24px 16px; } main { padding: 28px 20px 24px; } }
 </style>
 </head>
 <body>
 <main>
-<h1>Contact us</h1>
-<p class="note">Demo page. Entries go to the test sheet and appear in the next morning digest.</p>
+<h1>Get in touch</h1>
+<p class="lead">Send us a message and we will get back to you.</p>
 <!-- BEGIN contact form -->
 <!-- Contact form. Paste this whole block where the form should appear. -->
 <script>
@@ -23,35 +37,71 @@
   var CONTACT_FORM_SITE = 'demo';                  // Short name for this website, shown in the digest
 </script>
 <form class="cf-form">
-  <label class="cf-field">Name
-    <input name="name" type="text" maxlength="200" autocomplete="name" required>
-  </label>
-  <label class="cf-field">Email
-    <input name="email" type="email" maxlength="254" autocomplete="email" required>
-  </label>
-  <label class="cf-field">Company
+  <div class="cf-row">
+    <label class="cf-field"><span class="cf-label">Name</span>
+      <input name="name" type="text" maxlength="200" autocomplete="name" required>
+    </label>
+    <label class="cf-field"><span class="cf-label">Email</span>
+      <input name="email" type="email" maxlength="254" autocomplete="email" required>
+    </label>
+  </div>
+  <label class="cf-field"><span class="cf-label">Company <span class="cf-optional">(optional)</span></span>
     <input name="company" type="text" maxlength="200" autocomplete="organization">
   </label>
-  <label class="cf-field">Message
-    <textarea name="message" rows="5" maxlength="5000" required></textarea>
+  <label class="cf-field"><span class="cf-label">Message</span>
+    <textarea name="message" rows="6" maxlength="5000" required></textarea>
   </label>
   <div class="cf-hp" aria-hidden="true">
     <label>Leave this empty <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
   </div>
-  <button class="cf-send" type="submit">Send</button>
-  <p class="cf-status" role="status" aria-live="polite"></p>
+  <div class="cf-actions">
+    <button class="cf-send" type="submit">Send message</button>
+    <p class="cf-status" role="status" aria-live="polite"></p>
+  </div>
 </form>
 <style>
-  .cf-form { max-width: 480px; font: inherit; }
-  .cf-field { display: block; margin: 0 0 14px; }
-  .cf-field input, .cf-field textarea {
-    display: block; width: 100%; box-sizing: border-box; margin-top: 4px;
-    padding: 8px 10px; font: inherit; border: 1px solid #bbb; border-radius: 4px;
+  /* Change --cf-accent to the site's own colour. Text uses the site's font. */
+  .cf-form {
+    --cf-accent: #1f5eff;
+    --cf-text: #1c2230;
+    --cf-muted: #6b7385;
+    --cf-border: #d5d9e2;
+    --cf-field-bg: #fff;
+    max-width: 560px; font: inherit; color: var(--cf-text);
   }
-  .cf-send { padding: 9px 22px; font: inherit; cursor: pointer; }
-  .cf-send[disabled] { opacity: .6; cursor: default; }
-  .cf-status { min-height: 1.4em; margin: 10px 0 0; }
-  .cf-status.cf-error { color: #b00020; }
+  .cf-form * { box-sizing: border-box; }
+  .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  @media (max-width: 520px) { .cf-row { grid-template-columns: 1fr; } }
+  .cf-field { display: block; margin: 0 0 18px; }
+  .cf-label { display: block; margin-bottom: 6px; font-size: .875em; font-weight: 600; letter-spacing: .01em; }
+  .cf-optional { font-weight: 400; color: var(--cf-muted); }
+  .cf-field input, .cf-field textarea {
+    display: block; width: 100%; margin: 0; padding: 11px 13px;
+    font: inherit; color: inherit; background: var(--cf-field-bg);
+    border: 1px solid var(--cf-border); border-radius: 8px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .cf-field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  .cf-field input:hover, .cf-field textarea:hover { border-color: #b4bac8; }
+  .cf-field input:focus, .cf-field textarea:focus {
+    outline: none; border-color: var(--cf-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cf-accent) 20%, transparent);
+  }
+  .cf-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 4px; }
+  .cf-send {
+    padding: 12px 26px; font: inherit; font-weight: 600; color: #fff;
+    background: var(--cf-accent); border: 0; border-radius: 8px; cursor: pointer;
+    transition: filter .15s, transform .05s;
+  }
+  .cf-send:hover { filter: brightness(1.08); }
+  .cf-send:active { transform: translateY(1px); }
+  .cf-send:focus-visible { outline: 3px solid color-mix(in srgb, var(--cf-accent) 35%, transparent); outline-offset: 2px; }
+  .cf-send[disabled] { opacity: .6; cursor: default; filter: none; transform: none; }
+  .cf-status { flex: 1 1 220px; margin: 0; font-size: .9375em; color: var(--cf-muted); }
+  .cf-status:empty { display: none; }
+  .cf-status.cf-ok, .cf-status.cf-error { padding: 10px 14px; border-radius: 8px; }
+  .cf-status.cf-ok { color: #0f6b3a; background: #e7f6ee; }
+  .cf-status.cf-error { color: #a11a2b; background: #fdecee; }
   /* Off screen rather than display:none, which some bots know to skip. */
   .cf-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
 </style>
@@ -75,28 +125,28 @@
       ev.preventDefault();
       var url = window.CONTACT_FORM_URL;
       if (!url || url === 'PASTE_WEB_APP_URL_HERE') {
-        show('This form is not connected yet.', true);
+        show('This form is not connected yet.', 'error');
         return;
       }
       var body = new URLSearchParams(new FormData(form));
       body.set('source', window.CONTACT_FORM_SITE || location.hostname);
       body.set('submission_id', submissionId);
       button.disabled = true;
-      show('Sending...', false);
+      show('Sending…', '');
 
       send(url, body, 2)
         .then(function (data) {
           if (data.ok) {
             form.reset();
             submissionId = newId();
-            show('Thank you, your message has been sent.', false);
+            show('Thank you, your message has been sent.', 'ok');
           } else {
-            show(data.error || 'Something went wrong. Please try again.', true);
+            show(data.error || 'Something went wrong. Please try again.', 'error');
           }
         })
         .catch(function () {
           show('We could not confirm that your message arrived. ' +
-            'Please press Send again; it will not be sent twice.', true);
+            'Please press the button again; it will not be sent twice.', 'error');
         })
         .then(function () { button.disabled = false; });
     });
@@ -121,9 +171,9 @@
         });
     }
 
-    function show(text, isError) {
+    function show(text, kind) {
       status.textContent = text;
-      status.className = 'cf-status' + (isError ? ' cf-error' : '');
+      status.className = 'cf-status' + (kind ? ' cf-' + kind : '');
     }
   }
 
