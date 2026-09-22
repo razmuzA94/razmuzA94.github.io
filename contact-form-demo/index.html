@@ -16,10 +16,13 @@
 <h1>Contact us</h1>
 <p class="note">Demo page. Entries go to the test sheet and appear in the next morning digest.</p>
 <!-- BEGIN contact form -->
-<!-- Contact form. Paste this whole block where the form should appear.
-     Set data-endpoint to the web app URL and data-source to a short name
-     for this website; it shows up in the Source column and the digest. -->
-<form class="cf-form" data-endpoint="PASTE_WEB_APP_URL_HERE" data-source="demo">
+<!-- Contact form. Paste this whole block where the form should appear. -->
+<script>
+  // ===== Settings: fill in these two lines =====
+  var CONTACT_FORM_URL = 'PASTE_WEB_APP_URL_HERE'; // Web app URL from Apps Script, ends in /exec
+  var CONTACT_FORM_SITE = 'demo';                  // Short name for this website, shown in the digest
+</script>
+<form class="cf-form">
   <label class="cf-field">Name
     <input name="name" type="text" maxlength="200" autocomplete="name" required>
   </label>
@@ -64,14 +67,19 @@
 
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
+      var url = window.CONTACT_FORM_URL;
+      if (!url || url === 'PASTE_WEB_APP_URL_HERE') {
+        show('This form is not connected yet.', true);
+        return;
+      }
       var body = new URLSearchParams(new FormData(form));
-      body.set('source', form.getAttribute('data-source') || location.hostname);
+      body.set('source', window.CONTACT_FORM_SITE || location.hostname);
       button.disabled = true;
       show('Sending...', false);
 
       // A URLSearchParams body is a "simple" request, so the browser sends it
       // without a CORS preflight, which Apps Script cannot answer.
-      fetch(form.getAttribute('data-endpoint'), { method: 'POST', body: body })
+      fetch(url, { method: 'POST', body: body })
         .then(function (res) { return res.json(); })
         .then(function (data) {
           if (data.ok) {
