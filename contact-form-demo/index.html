@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact form demo</title>
+<style>
+  body { margin: 0; padding: 32px 16px; font: 16px/1.5 system-ui, sans-serif; color: #222; background: #f6f6f4; }
+  main { max-width: 520px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; }
+  h1 { font-size: 1.4em; margin: 0 0 4px; }
+  .note { color: #666; margin: 0 0 24px; font-size: .9em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Contact us</h1>
+<p class="note">Demo page. Entries go to the test sheet and appear in the next morning digest.</p>
+<!-- BEGIN contact form -->
+<!-- Contact form. Paste this whole block where the form should appear.
+     Set data-endpoint to the web app URL and data-source to a short name
+     for this website; it shows up in the Source column and the digest. -->
+<form class="cf-form" data-endpoint="PASTE_WEB_APP_URL_HERE" data-source="demo">
+  <label class="cf-field">Name
+    <input name="name" type="text" maxlength="200" autocomplete="name" required>
+  </label>
+  <label class="cf-field">Email
+    <input name="email" type="email" maxlength="254" autocomplete="email" required>
+  </label>
+  <label class="cf-field">Company
+    <input name="company" type="text" maxlength="200" autocomplete="organization">
+  </label>
+  <label class="cf-field">Message
+    <textarea name="message" rows="5" maxlength="5000" required></textarea>
+  </label>
+  <div class="cf-hp" aria-hidden="true">
+    <label>Leave this empty <input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+  </div>
+  <button class="cf-send" type="submit">Send</button>
+  <p class="cf-status" role="status" aria-live="polite"></p>
+</form>
+<style>
+  .cf-form { max-width: 480px; font: inherit; }
+  .cf-field { display: block; margin: 0 0 14px; }
+  .cf-field input, .cf-field textarea {
+    display: block; width: 100%; box-sizing: border-box; margin-top: 4px;
+    padding: 8px 10px; font: inherit; border: 1px solid #bbb; border-radius: 4px;
+  }
+  .cf-send { padding: 9px 22px; font: inherit; cursor: pointer; }
+  .cf-send[disabled] { opacity: .6; cursor: default; }
+  .cf-status { min-height: 1.4em; margin: 10px 0 0; }
+  .cf-status.cf-error { color: #b00020; }
+  /* Off screen rather than display:none, which some bots know to skip. */
+  .cf-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+<script>
+(function () {
+  var forms = document.querySelectorAll('form.cf-form:not([data-cf-ready])');
+  for (var i = 0; i < forms.length; i++) setUp(forms[i]);
+
+  function setUp(form) {
+    form.setAttribute('data-cf-ready', '');
+    var button = form.querySelector('.cf-send');
+    var status = form.querySelector('.cf-status');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var body = new URLSearchParams(new FormData(form));
+      body.set('source', form.getAttribute('data-source') || location.hostname);
+      button.disabled = true;
+      show('Sending...', false);
+
+      // A URLSearchParams body is a "simple" request, so the browser sends it
+      // without a CORS preflight, which Apps Script cannot answer.
+      fetch(form.getAttribute('data-endpoint'), { method: 'POST', body: body })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) {
+            form.reset();
+            show('Thank you, your message has been sent.', false);
+          } else {
+            show(data.error || 'Something went wrong. Please try again.', true);
+          }
+        })
+        .catch(function () {
+          show('Your message could not be sent. Please try again later.', true);
+        })
+        .then(function () { button.disabled = false; });
+    });
+
+    function show(text, isError) {
+      status.textContent = text;
+      status.className = 'cf-status' + (isError ? ' cf-error' : '');
+    }
+  }
+})();
+</script>
+<!-- END contact form -->
+</main>
+</body>
+</html>
