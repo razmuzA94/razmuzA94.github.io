@@ -65,6 +65,12 @@
     var button = form.querySelector('.cf-send');
     var status = form.querySelector('.cf-status');
 
+    // One id per filled-in form. Retries and repeated presses of Send reuse
+    // it, and the server keeps only the first copy. Editing the form makes it
+    // a new message with a new id.
+    var submissionId = newId();
+    form.addEventListener('input', function () { submissionId = newId(); });
+
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       var url = window.CONTACT_FORM_URL;
@@ -74,31 +80,59 @@
       }
       var body = new URLSearchParams(new FormData(form));
       body.set('source', window.CONTACT_FORM_SITE || location.hostname);
+      body.set('submission_id', submissionId);
       button.disabled = true;
       show('Sending...', false);
 
-      // A URLSearchParams body is a "simple" request, so the browser sends it
-      // without a CORS preflight, which Apps Script cannot answer.
-      fetch(url, { method: 'POST', body: body })
-        .then(function (res) { return res.json(); })
+      send(url, body, 2)
         .then(function (data) {
           if (data.ok) {
             form.reset();
+            submissionId = newId();
             show('Thank you, your message has been sent.', false);
           } else {
             show(data.error || 'Something went wrong. Please try again.', true);
           }
         })
         .catch(function () {
-          show('Your message could not be sent. Please try again later.', true);
+          show('We could not confirm that your message arrived. ' +
+            'Please press Send again; it will not be sent twice.', true);
         })
         .then(function () { button.disabled = false; });
     });
+
+    // Google sometimes loses the reply even though the entry was saved, so a
+    // missing or unreadable reply is retried. The id makes that safe.
+    // A URLSearchParams body is a "simple" request, so the browser sends it
+    // without a CORS preflight, which Apps Script cannot answer.
+    function send(url, body, retries) {
+      var controller = window.AbortController ? new AbortController() : null;
+      var timer = controller && setTimeout(function () { controller.abort(); }, 30000);
+      return fetch(url, { method: 'POST', body: body, signal: controller && controller.signal })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          clearTimeout(timer);
+          return data;
+        }, function (err) {
+          clearTimeout(timer);
+          if (retries < 1) throw err;
+          return new Promise(function (r) { setTimeout(r, 1500); })
+            .then(function () { return send(url, body, retries - 1); });
+        });
+    }
 
     function show(text, isError) {
       status.textContent = text;
       status.className = 'cf-status' + (isError ? ' cf-error' : '');
     }
+  }
+
+  function newId() {
+    var bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    var hex = '';
+    for (var i = 0; i < bytes.length; i++) hex += (bytes[i] < 16 ? '0' : '') + bytes[i].toString(16);
+    return hex;
   }
 })();
 </script>
